@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #222; }
+        canvas { background: #000; border: 2px solid #fff; }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = 400;
+        canvas.height = 400;
+
+        const box = 20;
+        let snake = [{ x: 200, y: 200 }];
+        let direction = "RIGHT";
+        let food = { x: Math.floor(Math.random() * 20) * box, y: Math.floor(Math.random() * 20) * box };
+        let gameOver = false;
+
+        function draw() {
+            if (gameOver) return;
+
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "red";
+            ctx.fillRect(food.x, food.y, box, box);
+
+            ctx.fillStyle = "lime";
+            snake.forEach((segment, index) => {
+                ctx.fillRect(segment.x, segment.y, box, box);
+            });
+
+            let head = { x: snake[0].x, y: snake[0].y };
+
+            if (direction === "UP") head.y -= box;
+            if (direction === "DOWN") head.y += box;
+            if (direction === "LEFT") head.x -= box;
+            if (direction === "RIGHT") head.x += box;
+
+            if (head.x === food.x && head.y === food.y) {
+                food = { x: Math.floor(Math.random() * 20) * box, y: Math.floor(Math.random() * 20) * box };
+            } else {
+                snake.pop();
+            }
+
+            snake.unshift(head);
+
+            if (head.x < 0 || head.y < 0 || head.x >= canvas.width || head.y >= canvas.height || collision(head, snake)) {
+                gameOver = true;
+                alert("Game Over!");
+            }
+        }
+
+        function collision(head, snake) {
+            return snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y);
+        }
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+            if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+            if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+            if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+        });
+
+        setInterval(draw, 100);
+    </script>
+</body>
+</html>
